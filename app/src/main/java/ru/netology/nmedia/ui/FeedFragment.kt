@@ -15,13 +15,25 @@ import kotlinx.coroutines.flow.collectLatest
 import ru.netology.nmedia.R
 import ru.netology.nmedia.adapter.OnInteractionListener
 import ru.netology.nmedia.adapter.PostsAdapter
+import ru.netology.nmedia.auth.AppAuth
 import ru.netology.nmedia.databinding.FragmentFeedBinding
 import ru.netology.nmedia.dto.Post
+import ru.netology.nmedia.repository.PostRepository
+import ru.netology.nmedia.viewmodel.AuthViewModel
 import ru.netology.nmedia.viewmodel.PostViewModel
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class FeedFragment : Fragment() {
+    @Inject
+    lateinit var repository: PostRepository
+
+    @Inject
+    lateinit var auth: AppAuth
+
     private val viewModel: PostViewModel by activityViewModels()
+
+    private val viewModelAuth: AuthViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,6 +83,10 @@ class FeedFragment : Fragment() {
         }
 
         binding.swiperefresh.setOnRefreshListener(adapter::refresh)
+
+        viewModelAuth.data.observe(viewLifecycleOwner) {
+            adapter.refresh()
+        }
 
         binding.fab.setOnClickListener {
             findNavController().navigate(R.id.action_feedFragment_to_newPostFragment)
